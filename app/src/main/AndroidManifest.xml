@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="masquerade.substratum"
-          android:versionCode="21"
-          android:versionName="twentyone - something"
+          android:versionCode="23"
+          android:versionName="twenty three"
           coreApp="true"
           android:sharedUserId="android.uid.system">
 
