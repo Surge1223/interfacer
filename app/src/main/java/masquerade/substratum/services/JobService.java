@@ -17,14 +17,15 @@ import android.content.om.OverlayInfo;
 import android.content.pm.IPackageDeleteObserver;
 import android.content.pm.IPackageInstallObserver2;
 import android.content.pm.IPackageManager;
-import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
@@ -42,13 +43,8 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -57,13 +53,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import masquerade.substratum.utils.IOUtils;
 import masquerade.substratum.utils.SoundUtils;
 
-import com.android.internal.statusbar.IStatusBarService;
+import static masquerade.substratum.utils.IOUtils.SYSTEM_THEME_BOOTANIMATION_PATH;
+import static masquerade.substratum.utils.IOUtils.createDirIfNotExists;
+import static masquerade.substratum.utils.IOUtils.createThemeDirIfNotExists;
 
 public class JobService extends Service {
     private static final String TAG = JobService.class.getSimpleName();
@@ -71,7 +67,7 @@ public class JobService extends Service {
 
     private static final String MASQUERADE_TOKEN = "masquerade_token";
     private static final String SUBSTRATUM_PACKAGE = "projekt.substratum";
-    private static final String[] AUTHORIZED_CALLERS = new String[] {
+    private static final String[] AUTHORIZED_CALLERS = new String[]{
             SUBSTRATUM_PACKAGE,
             "masquerade.substratum"
     };
@@ -109,7 +105,7 @@ public class JobService extends Service {
     public static final String COMMAND_VALUE_MOVE = "move";
     public static final String COMMAND_VALUE_DELETE = "delete";
     public static final String COMMAND_VALUE_PROFILE = "profile";
-
+    public static final String COMMAND_VALUE_MKDIR = "mkdir";
     private static IOverlayManager mOMS;
     private static IPackageManager mPM;
 
@@ -126,13 +122,27 @@ public class JobService extends Service {
         mWorker.start();
         mJobHandler = new JobHandler(mWorker.getLooper());
         mMainHandler = new MainHandler(Looper.getMainLooper());
+        Log.e(TAG,
+                "Sexy af");
+
+        try {
+            createThemeDirIfNotExists();
+            Log.i("JNI", "Trying to load liaoptcheck.so");
+            System.loadLibrary("libaoptcheck");
+        } catch (UnsatisfiedLinkError ule) {
+            Log.e("JNI", "WARNING: Could not load libaoptcheck.so");
+        }
+
+        Log.d("Subs", "chmod aopt as getUid()=" + android.os.Process.myUid());
+        Log.d("JNI", "Loading libaoptcheck.so");
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // verify identity
         if (!isCallerAuthorized(intent)) {
-            log("caller not authorized, aborting");
+            logE("caller not authorized, aborting");
             return START_NOT_STICKY;
         }
 
@@ -143,7 +153,7 @@ public class JobService extends Service {
         // filter out duplicate intents
         long jobTime = intent.getLongExtra(JOB_TIME_KEY, 1);
         if (jobTime == 1 || jobTime == mLastJobTime) {
-            log("got empty jobtime or duplicate job time, aborting");
+            logE("got empty jobtime or duplicate job time, aborting");
             return START_NOT_STICKY;
         }
         mLastJobTime = jobTime;
@@ -151,7 +161,7 @@ public class JobService extends Service {
         // must have a primary command
         String command = intent.getStringExtra(PRIMARY_COMMAND_KEY);
         if (TextUtils.isEmpty(command)) {
-            log("Got empty primary command, aborting");
+            logE("Got empty primary command, aborting");
             return START_NOT_STICKY;
         }
 
@@ -216,6 +226,9 @@ public class JobService extends Service {
             String source = intent.getStringExtra(SOURCE_FILE_KEY);
             String destination = intent.getStringExtra(DESTINATION_FILE_KEY);
             jobs_to_add.add(new MoveJob(source, destination));
+        } else if (TextUtils.equals(command, COMMAND_VALUE_MKDIR)) {
+            String destination = intent.getStringExtra(DESTINATION_FILE_KEY);
+            jobs_to_add.add(new MkdirJob(destination));
         } else if (TextUtils.equals(command, COMMAND_VALUE_DELETE)) {
             String dir = intent.getStringExtra(SOURCE_FILE_KEY);
             if (intent.getBooleanExtra(WITH_DELETE_PARENT_KEY, true)) {
@@ -529,7 +542,7 @@ public class JobService extends Service {
                 "LowBattery.ogg");
     }
 
-    private void refreshSounds () {
+    private void refreshSounds() {
         File soundsDir = new File(IOUtils.SYSTEM_THEME_AUDIO_PATH);
         if (soundsDir.exists()) {
             // Set permissions
@@ -644,7 +657,9 @@ public class JobService extends Service {
             }
         }
     }
+
     private void copyBootAnimation(String fileName) {
+
         try {
             clearBootAnimation();
             File source = new File(fileName);
@@ -660,7 +675,7 @@ public class JobService extends Service {
 
     private void clearBootAnimation() {
         try {
-            File f = new File(IOUtils.SYSTEM_THEME_BOOTANIMATION_PATH);
+            File f = new File(SYSTEM_THEME_BOOTANIMATION_PATH);
             if (f.exists()) {
                 f.delete();
             }
@@ -715,9 +730,19 @@ public class JobService extends Service {
 
     public static void log(String msg) {
         if (DEBUG) {
-            Log.e(TAG, msg);
-        }
+            Log.d(TAG, msg);
+        } else
+            Log.i(TAG, msg);
     }
+
+
+    public static void logE(String msg) {
+        if (DEBUG) {
+            Log.e(TAG, msg);
+        } else
+            Log.d(TAG, msg);
+    }
+
 
     private boolean isCallerAuthorized(Intent intent) {
         PendingIntent token = null;
@@ -747,6 +772,7 @@ public class JobService extends Service {
         }
         return true;
     }
+
 
     private class MainHandler extends Handler {
         public static final int MSG_JOB_QUEUE_EMPTY = 1;
@@ -1046,9 +1072,9 @@ public class JobService extends Service {
             log("PriorityJob - processing priority changes");
             try {
                 int size = mPackages.size();
-                for (int i = 0; i < size-1; i++) {
+                for (int i = 0; i < size - 1; i++) {
                     String parentName = mPackages.get(i);
-                    String packageName = mPackages.get(i+1);
+                    String packageName = mPackages.get(i + 1);
                     getOMS().setPriority(packageName, parentName, UserHandle.USER_SYSTEM);
                 }
             } catch (RemoteException e) {
@@ -1080,7 +1106,7 @@ public class JobService extends Service {
                     IOUtils.copyFolder(mSource, mDestination);
                 }
             } else {
-                log("CopyJob - " + mSource + " is not exist! aborting...");
+                logE("CopyJob - " + mSource + " is not exist! aborting...");
             }
             Message message = mJobHandler.obtainMessage(JobHandler.MESSAGE_DEQUEUE,
                     CopyJob.this);
@@ -1109,7 +1135,7 @@ public class JobService extends Service {
                 }
                 IOUtils.deleteRecursive(sourceFile);
             } else {
-                log("MoveJob - " + mSource + " is not exist! aborting...");
+                logE("MoveJob - " + mSource + " is not exist! aborting...");
             }
             Message message = mJobHandler.obtainMessage(JobHandler.MESSAGE_DEQUEUE,
                     MoveJob.this);
@@ -1117,10 +1143,28 @@ public class JobService extends Service {
         }
     }
 
+    private class MkdirJob implements Runnable {
+        String mDestination;
+
+        public MkdirJob(String _destination) {
+            mDestination = _destination;
+        }
+
+        @Override
+        public void run() {
+            log("MkdirJob - creating " + mDestination);
+            createDirIfNotExists(mDestination);
+
+            Message message = mJobHandler.obtainMessage(JobHandler.MESSAGE_DEQUEUE,
+                    MkdirJob.this);
+            mJobHandler.sendMessage(message);
+        }
+    }
+
     private class DeleteJob implements Runnable {
         String mFileOrDirectory;
 
-        public DeleteJob(String _directory) {
+        DeleteJob(String _directory) {
             mFileOrDirectory = _directory;
         }
 

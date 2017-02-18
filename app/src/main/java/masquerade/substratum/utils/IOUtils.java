@@ -7,12 +7,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import android.os.Environment;
 import android.os.FileUtils;
+import android.util.Log;
 
 public class IOUtils {
     public static final String SYSTEM_THEME_PATH = "/data/system/theme";
@@ -28,8 +31,7 @@ public class IOUtils {
             + File.separator + "alarms";
     public static final String SYSTEM_THEME_UI_SOUNDS_PATH = SYSTEM_THEME_AUDIO_PATH
             + File.separator + "ui";
-    public static final String SYSTEM_THEME_BOOTANIMATION_PATH = SYSTEM_THEME_PATH + File.separator
-            + "bootanimation.zip";
+    public static final String SYSTEM_THEME_BOOTANIMATION_PATH = SYSTEM_THEME_PATH + File.separator + "bootanimation.zip";
 
     public static boolean dirExists(String dirPath) {
         final File dir = new File(dirPath);
@@ -44,6 +46,10 @@ public class IOUtils {
                         FileUtils.S_IROTH | FileUtils.S_IXOTH);
             }
         }
+    }
+
+    public static void createThemeDirIfNotExists() {
+        createDirIfNotExists(SYSTEM_THEME_PATH);
     }
 
     public static void createFontDirIfNotExists() {
@@ -157,7 +163,7 @@ public class IOUtils {
             BufferedOutputStream out = new BufferedOutputStream(dest);
             byte[] buff = new byte[32 * 1024];
             int len;
-            while ((len = in.read(buff)) > 0) {
+            while ((len = in.read(buff)) != -1) {
                 out.write(buff, 0, len);
             }
             in.close();
@@ -166,6 +172,8 @@ public class IOUtils {
             e.printStackTrace();
         }
     }
+
+
 
     public static void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
