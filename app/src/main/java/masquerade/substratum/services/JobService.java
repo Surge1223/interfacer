@@ -122,20 +122,6 @@ public class JobService extends Service {
         mWorker.start();
         mJobHandler = new JobHandler(mWorker.getLooper());
         mMainHandler = new MainHandler(Looper.getMainLooper());
-        Log.e(TAG,
-                "Sexy af");
-
-        try {
-            createThemeDirIfNotExists();
-            Log.i("JNI", "Trying to load liaoptcheck.so");
-            System.loadLibrary("libaoptcheck");
-        } catch (UnsatisfiedLinkError ule) {
-            Log.e("JNI", "WARNING: Could not load libaoptcheck.so");
-        }
-
-        Log.d("Subs", "chmod aopt as getUid()=" + android.os.Process.myUid());
-        Log.d("JNI", "Loading libaoptcheck.so");
-
     }
 
     @Override
@@ -660,6 +646,7 @@ public class JobService extends Service {
 
     private void copyBootAnimation(String fileName) {
 
+        createThemeDirIfNotExists();
         try {
             clearBootAnimation();
             File source = new File(fileName);
@@ -930,11 +917,11 @@ public class JobService extends Service {
         String mFileName;
         final boolean mClear;
 
-        public BootAnimationJob(boolean clear) {
+        private BootAnimationJob(boolean clear) {
             mClear = true;
         }
 
-        public BootAnimationJob(String fileName) {
+        private BootAnimationJob(String fileName) {
             mFileName = fileName;
             mClear = false;
         }
