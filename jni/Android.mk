@@ -26,12 +26,17 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_C_INCLUDES += $(JNI_H_INCLUDE)
 LOCAL_PRELINK_MODULE := false
 <<<<<<< HEAD
+<<<<<<< HEAD
 LOCAL_STATIC_LIBRARIES := libbinder libutils 
 LOCAL_WHOLE_STATIC_LIBRARIES := libcutils liblog libnativehelper
 =======
 LOCAL_STATIC_LIBRARIES := libbinder libutils libnativehelper 
 LOCAL_WHOLE_STATIC_LIBRARIES := libcutils liblog
 >>>>>>> eec584e... JNI: add a basic lib for native oms
+=======
+LOCAL_STATIC_LIBRARIES := libbinder libutils 
+LOCAL_WHOLE_STATIC_LIBRARIES := libcutils liblog libnativehelper
+>>>>>>> d4a92d6... jni/Android.mk: libnativehelper isnt static by default
 LOCAL_CFLAGS := -DPLATFORM
 LOCAL_CFLAGS += -Wall -Werror -Iinclude
 include $(BUILD_SHARED_LIBRARY)
