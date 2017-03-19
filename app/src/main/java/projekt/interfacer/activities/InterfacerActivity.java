@@ -1,6 +1,7 @@
 package projekt.interfacer.activities;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.content.om.IOverlayManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import projekt.interfacer.services.JobService;
 
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
@@ -42,6 +44,8 @@ public class InterfacerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+    getOverlayManagerService();
         System.out.println("Interfacer onCreate: getUid()=" + android.os.Process.myUid());
         bindService();
         getOverlayManagerService();
@@ -57,10 +61,12 @@ public class InterfacerActivity extends Activity {
     }
 
     private void bindService() {
-        Intent i = new Intent("projekt.interfacer.services.JobService");
+        Context context = getApplicationContext();
+        Intent i = new Intent(this, JobService.class);
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
+        context.startService(i);
         Log.d(LOG_TAG, "Interfacer startng JobService!");
-     //   System.loadLibrary("omsapi");
+    //       System.loadLibrary("oms");
         Log.d(LOG_TAG, "UID " + this.getUserId());
 
     }
