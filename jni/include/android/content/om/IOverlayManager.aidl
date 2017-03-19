@@ -19,6 +19,9 @@ package android.content.om;
 import android.content.om.OverlayInfo;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
 interface IThemeInterfacerService {
 
    void enableJobs(boolean value);
@@ -31,6 +34,7 @@ interface IThemeInterfacerService {
     int hellothere(String msg);
 
   }
+<<<<<<< HEAD
 =======
 /**
  * Api for getting information about overlay packages.
@@ -143,3 +147,5 @@ interface IOverlayManager {
 
     }
 >>>>>>> eec584e... JNI: add a basic lib for native oms
+=======
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP

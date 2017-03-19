@@ -58,20 +58,24 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.content.om.IOverlayManager;
+import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
 =======
+=======
+
+import projekt.interfacer.ThemeInterface;
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
 import projekt.interfacer.services.JobService;
 >>>>>>> 0b2d981... InterfacerActivity: Add receiver and start activity for testing
 
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
     private String SERVICE_NAME = "overlay";
+<<<<<<< HEAD
     IOverlayManager mOverlayManager;
 <<<<<<< HEAD
 =======
@@ -90,9 +94,24 @@ public class InterfacerActivity extends Activity {
                 mOverlayManager.getAllOverlays(android.os.Process.myUid());
             } catch (RemoteException e) {
 
-            }
-        }
+=======
+    ThemeInterface mOverlayManager;
+    serviceConnection connection;
 
+    class serviceConnection implements ServiceConnection {
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(LOG_TAG, "Service connected");
+                mOverlayManager = ThemeInterface.Stub.asInterface(service);
+                Toast.makeText(InterfacerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+                try {
+                    mOverlayManager.setData("SexyAf");
+                } catch (RemoteException e) {
+
+                }
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
+            }
+
+<<<<<<< HEAD
         public void onServiceDisconnected(ComponentName name) {
             Log.e(LOG_TAG, "disconnected");
             mOverlayManager = null;
@@ -116,7 +135,16 @@ public class InterfacerActivity extends Activity {
 =======
         }
     };
+=======
+            public void onServiceDisconnected(ComponentName name) {
+                Log.e(LOG_TAG, "disconnected");
+                mOverlayManager = null;
+                Toast.makeText(InterfacerActivity.this, "Service disconnected", Toast.LENGTH_SHORT)
+                        .show();
+            }
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
 
+        };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,11 +171,18 @@ public class InterfacerActivity extends Activity {
 <<<<<<< HEAD
         Context context = getApplicationContext();
         Intent i = new Intent(this, JobService.class);
-        bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(i, connection, Context.BIND_AUTO_CREATE);
         context.startService(i);
+<<<<<<< HEAD
         Log.d("InterfacerActivity", "InterfacerActivity startng JobService as  UID" + this.getUserId());
         Log.i(LOG_TAG, " caller's uid " + getCallingUid()
                 + ", pid " + getCallingPid());
+=======
+        if (!bindService(i, connection, Context.BIND_AUTO_CREATE)) {
+            Toast.makeText(InterfacerActivity.this, "Bind Service Failed", Toast.LENGTH_LONG)
+                    .show();
+        }
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
         Log.d(LOG_TAG, "Interfacer startng JobService!");
      //   System.loadLibrary("oms");
 =======
@@ -185,7 +220,8 @@ public class InterfacerActivity extends Activity {
 =======
 >>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
     private void unbindService() {
-        unbindService(serviceConnection);
+        unbindService(connection);
+        connection = null;
     }
 
     @Override
@@ -210,6 +246,7 @@ public class InterfacerActivity extends Activity {
             Log.d(LOG_TAG, e.toString());
         }
         if(binder != null){
+<<<<<<< HEAD
             mOverlayManager = android.content.om.IOverlayManager.Stub.asInterface(binder);
 <<<<<<< HEAD
             Log.d(LOG_TAG, "InterfacerActivity found binder");
@@ -251,6 +288,10 @@ public class InterfacerActivity extends Activity {
 }
 =======
             Log.d(LOG_TAG, "Find binder");
+=======
+            mOverlayManager = projekt.interfacer.ThemeInterface.Stub.asInterface(binder);
+            Log.d(LOG_TAG, "InterfacerActivity found binder");
+>>>>>>> 301aaa1... Binder IPC: Refactoring AIDL for client to server WIP
         }
         else
             Log.d(LOG_TAG,"Service is null.");
