@@ -2,9 +2,13 @@ package projekt.interfacer.activities;
 
 import android.app.Activity;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import android.app.ActivityManager;
 =======
 >>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
+=======
+import android.app.ActivityManager;
+>>>>>>> 0b2d981... InterfacerActivity: Add receiver and start activity for testing
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -59,7 +63,11 @@ import android.content.om.IOverlayManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+<<<<<<< HEAD
 >>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
+=======
+import projekt.interfacer.services.JobService;
+>>>>>>> 0b2d981... InterfacerActivity: Add receiver and start activity for testing
 
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
@@ -113,6 +121,8 @@ public class InterfacerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+    getOverlayManagerService();
         System.out.println("Interfacer onCreate: getUid()=" + android.os.Process.myUid());
         bindService();
         getOverlayManagerService();
@@ -130,6 +140,7 @@ public class InterfacerActivity extends Activity {
 
     private void bindService() {
 <<<<<<< HEAD
+<<<<<<< HEAD
         Context context = getApplicationContext();
         Intent i = new Intent(this, JobService.class);
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -141,10 +152,19 @@ public class InterfacerActivity extends Activity {
      //   System.loadLibrary("oms");
 =======
         Intent i = new Intent("projekt.interfacer.services.JobService");
+=======
+        Context context = getApplicationContext();
+        Intent i = new Intent(this, JobService.class);
+>>>>>>> 0b2d981... InterfacerActivity: Add receiver and start activity for testing
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
+        context.startService(i);
         Log.d(LOG_TAG, "Interfacer startng JobService!");
+<<<<<<< HEAD
      //   System.loadLibrary("omsapi");
 >>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
+=======
+    //       System.loadLibrary("oms");
+>>>>>>> 0b2d981... InterfacerActivity: Add receiver and start activity for testing
         Log.d(LOG_TAG, "UID " + this.getUserId());
 
     }
