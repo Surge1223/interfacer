@@ -44,12 +44,19 @@
             android:name=".services.JobService"
             android:exported="true"
             android:permission="android.permission.MODIFY_OVERLAYS"/>
+<<<<<<< HEAD
             
         <activity android:name="projekt.interfacer.activities.InterfacerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="projekt.interfacer.INITIALIZE"/>
 
+=======
+        <activity android:name=".activities.InterfacerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="projekt.interfacer.INITIALIZE"/>
+>>>>>>> 577ac06... InterfacerActivity: Add binder ipc stub Activity
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
