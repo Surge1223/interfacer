@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.om.IOverlayManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -13,42 +14,43 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
-
-import projekt.interfacer.ThemeInterface;
 import projekt.interfacer.services.JobService;
+
+import static android.os.Binder.getCallingPid;
+import static android.os.Binder.getCallingUid;
 
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
     private String SERVICE_NAME = "overlay";
-    ThemeInterface mOverlayManager;
-    serviceConnection connection;
+    IOverlayManager mOverlayManager;
 
-    class serviceConnection implements ServiceConnection {
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(LOG_TAG, "Service connected");
-                mOverlayManager = ThemeInterface.Stub.asInterface(service);
-                Toast.makeText(InterfacerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-                try {
-                    mOverlayManager.setData("SexyAf");
-                } catch (RemoteException e) {
 
-                }
+    public ServiceConnection serviceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(LOG_TAG, "Service connected");
+            mOverlayManager = IOverlayManager.Stub.asInterface(service);
+            Toast.makeText(InterfacerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+            try {
+                mOverlayManager.getAllOverlays(android.os.Process.myUid());
+            } catch (RemoteException e) {
+
             }
+        }
 
-            public void onServiceDisconnected(ComponentName name) {
-                Log.e(LOG_TAG, "disconnected");
-                mOverlayManager = null;
-                Toast.makeText(InterfacerActivity.this, "Service disconnected", Toast.LENGTH_SHORT)
-                        .show();
-            }
+        public void onServiceDisconnected(ComponentName name) {
+            Log.e(LOG_TAG, "disconnected");
+            mOverlayManager = null;
+            Toast.makeText(InterfacerActivity.this, "Service disconnected", Toast.LENGTH_SHORT)
+                    .show();
+        }
 
-        };
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-    getOverlayManagerService();
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        getOverlayManagerService();
         System.out.println("Interfacer onCreate: getUid()=" + android.os.Process.myUid());
         bindService();
         getOverlayManagerService();
@@ -66,21 +68,20 @@ public class InterfacerActivity extends Activity {
     private void bindService() {
         Context context = getApplicationContext();
         Intent i = new Intent(this, JobService.class);
-        bindService(i, connection, Context.BIND_AUTO_CREATE);
+        bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
         context.startService(i);
-        if (!bindService(i, connection, Context.BIND_AUTO_CREATE)) {
-            Toast.makeText(InterfacerActivity.this, "Bind Service Failed", Toast.LENGTH_LONG)
-                    .show();
-        }
+        Log.d("InterfacerActivity", "InterfacerActivity startng JobService!");
+        Log.d("InterfacerActivity", "Remount attempt as  UID" + this.getUserId());
+        Log.i(LOG_TAG, " caller's uid " + getCallingUid()
+                + ", pid " + getCallingPid());
         Log.d(LOG_TAG, "Interfacer startng JobService!");
-    //       System.loadLibrary("oms");
+        //       System.loadLibrary("oms");
         Log.d(LOG_TAG, "UID " + this.getUserId());
 
     }
 
     private void unbindService() {
-        unbindService(connection);
-        connection = null;
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -105,11 +106,11 @@ public class InterfacerActivity extends Activity {
             Log.d(LOG_TAG, e.toString());
         }
         if(binder != null){
-            mOverlayManager = projekt.interfacer.ThemeInterface.Stub.asInterface(binder);
+            mOverlayManager = android.content.om.IOverlayManager.Stub.asInterface(binder);
             Log.d(LOG_TAG, "InterfacerActivity found binder");
         }
         else
-            Log.d(LOG_TAG,"Service is null.");
+            Log.d(LOG_TAG, "Service is null.");
     }
 }
 
