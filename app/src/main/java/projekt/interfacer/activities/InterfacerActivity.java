@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
+
 import projekt.interfacer.services.JobService;
 
 import static android.os.Binder.getCallingPid;
@@ -23,7 +24,7 @@ public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
     private String SERVICE_NAME = "overlay";
     IOverlayManager mOverlayManager;
-
+    private Context context = getApplicationContext();
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -66,12 +67,10 @@ public class InterfacerActivity extends Activity {
     }
 
     private void bindService() {
-        Context context = getApplicationContext();
         Intent i = new Intent(this, JobService.class);
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
         context.startService(i);
-        Log.d("InterfacerActivity", "InterfacerActivity startng JobService!");
-        Log.d("InterfacerActivity", "Remount attempt as  UID" + this.getUserId());
+        Log.d("InterfacerActivity", "InterfacerActivity startng JobService as  UID" + this.getUserId());
         Log.i(LOG_TAG, " caller's uid " + getCallingUid()
                 + ", pid " + getCallingPid());
         Log.d(LOG_TAG, "Interfacer startng JobService!");
@@ -112,6 +111,5 @@ public class InterfacerActivity extends Activity {
         else
             Log.d(LOG_TAG, "Service is null.");
     }
+
 }
-
-
