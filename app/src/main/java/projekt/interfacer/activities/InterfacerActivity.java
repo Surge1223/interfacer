@@ -14,18 +14,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
-
 import projekt.interfacer.services.JobService;
 
 import static android.os.Binder.getCallingPid;
 import static android.os.Binder.getCallingUid;
 
-// import projekt.interfacer.services.SystemUIMonitorService;
-
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
     private String SERVICE_NAME = "overlay";
     IOverlayManager mOverlayManager;
+
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -55,9 +53,7 @@ public class InterfacerActivity extends Activity {
         getOverlayManagerService();
         System.out.println("Interfacer onCreate: getUid()=" + android.os.Process.myUid());
         bindService();
-   //     startSystemUiMonitor();
         getOverlayManagerService();
-   //     disableOverlays();
         finish();
     }
 
@@ -74,26 +70,15 @@ public class InterfacerActivity extends Activity {
         Intent i = new Intent(this, JobService.class);
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
         context.startService(i);
-        Log.d("InterfacerActivity", "InterfacerActivity startng JobService as  UID" + this.getUserId());
+        Log.d("InterfacerActivity", "InterfacerActivity startng JobService!");
+        Log.d("InterfacerActivity", "Remount attempt as  UID" + this.getUserId());
         Log.i(LOG_TAG, " caller's uid " + getCallingUid()
                 + ", pid " + getCallingPid());
         Log.d(LOG_TAG, "Interfacer startng JobService!");
-     //   System.loadLibrary("oms");
+        //       System.loadLibrary("oms");
         Log.d(LOG_TAG, "UID " + this.getUserId());
 
     }
-
-    /* Not implemented yet
-
-    private void startSystemUiMonitor() {
-        Context context = getApplicationContext();
-        Intent intent = new Intent(this, SystemUIMonitorService.class);
-        Log.d(LOG_TAG, "Starting service: " + intent);
-        context.startService(intent);
-        Log.d("SystemUIMonitorService", "InterfacerActivity startng SystemUIMonitorService as  UID" + this.getUserId());
-        Log.i(LOG_TAG, " caller's uid " + getCallingUid());
-    }
-    */
 
     private void unbindService() {
         unbindService(serviceConnection);
@@ -127,35 +112,6 @@ public class InterfacerActivity extends Activity {
         else
             Log.d(LOG_TAG, "Service is null.");
     }
-
-    /* Enabling this here causes Subs to freeze on installing overlays
-    private void disableOverlays() {
-        try {
-            IOverlayManager iom = IOverlayManager.Stub.asInterface(
-                    ServiceManager.getService("overlay"));
-            if (iom == null) {
-                return;
-            }
-            Log.d(LOG_TAG,
-                    "Now contacting the Overlay Manager Service for the list of enabled overlays...");
-            Map<String, List<OverlayInfo>> allOverlays = iom.getAllOverlays(UserHandle.USER_SYSTEM);
-            if (allOverlays != null) {
-                Log.d(LOG_TAG,
-                        "The Overlay Manager Service reported back with the list of enabled overlays.");
-                Set<String> set = allOverlays.keySet();
-                for (String targetPackageName : set) {
-                    for (OverlayInfo oi : allOverlays.get(targetPackageName)) {
-                        if (oi.isEnabled()) {
-                            iom.setEnabled(oi.packageName, false, UserHandle.USER_SYSTEM, false);
-                            Log.d(LOG_TAG, "Now disabling \'" + oi.packageName + "\'");
-                        }
-                    }
-                }
-            }
-        } catch (RemoteException re) {
-            re.printStackTrace();
-            Log.d(LOG_TAG, "RemoteException while trying to contact the Overlay Manager Service!");
-        }
-    }
-    */
 }
+
+
