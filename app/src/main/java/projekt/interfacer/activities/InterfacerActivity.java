@@ -7,44 +7,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.om.IOverlayManager;
-import android.content.om.OverlayInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.os.UserHandle;
 import android.util.Log;
 import android.widget.Toast;
-import com.android.server.om.OverlayManagerService;
-import android.content.pm.PackageInfo;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.app.ActivityManager;
-import android.app.ActivityManagerNative;
-import android.app.IActivityManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.om.IOverlayManager;
-import android.content.om.OverlayInfo;
-import android.content.pm.IPackageManager;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManagerInternal;
-import android.content.pm.UserInfo;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import projekt.interfacer.services.JobService;
-// import projekt.interfacer.services.SystemUIMonitorService;
 
 import static android.os.Binder.getCallingPid;
 import static android.os.Binder.getCallingUid;
+
+// import projekt.interfacer.services.SystemUIMonitorService;
 
 public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
