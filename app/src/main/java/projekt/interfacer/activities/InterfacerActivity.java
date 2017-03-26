@@ -7,15 +7,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.om.IOverlayManager;
+import android.content.om.OverlayInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.os.UserHandle;
 import android.util.Log;
 import android.widget.Toast;
+import com.android.server.om.OverlayManagerService;
+import android.content.pm.PackageInfo;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.app.ActivityManagerNative;
+import android.app.IActivityManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.om.IOverlayManager;
+import android.content.om.OverlayInfo;
+import android.content.pm.IPackageManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManagerInternal;
+import android.content.pm.UserInfo;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import projekt.interfacer.services.JobService;
+// import projekt.interfacer.services.SystemUIMonitorService;
 
 import static android.os.Binder.getCallingPid;
 import static android.os.Binder.getCallingUid;
@@ -24,7 +50,6 @@ public class InterfacerActivity extends Activity {
     private static final String LOG_TAG = InterfacerActivity.class.getSimpleName();
     private String SERVICE_NAME = "overlay";
     IOverlayManager mOverlayManager;
-    private Context context = getApplicationContext();
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -54,7 +79,9 @@ public class InterfacerActivity extends Activity {
         getOverlayManagerService();
         System.out.println("Interfacer onCreate: getUid()=" + android.os.Process.myUid());
         bindService();
+   //     startSystemUiMonitor();
         getOverlayManagerService();
+   //     disableOverlays();
         finish();
     }
 
@@ -67,6 +94,7 @@ public class InterfacerActivity extends Activity {
     }
 
     private void bindService() {
+        Context context = getApplicationContext();
         Intent i = new Intent(this, JobService.class);
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
         context.startService(i);
@@ -74,10 +102,22 @@ public class InterfacerActivity extends Activity {
         Log.i(LOG_TAG, " caller's uid " + getCallingUid()
                 + ", pid " + getCallingPid());
         Log.d(LOG_TAG, "Interfacer startng JobService!");
-        //       System.loadLibrary("oms");
+     //   System.loadLibrary("oms");
         Log.d(LOG_TAG, "UID " + this.getUserId());
 
     }
+
+    /* Not implemented yet
+
+    private void startSystemUiMonitor() {
+        Context context = getApplicationContext();
+        Intent intent = new Intent(this, SystemUIMonitorService.class);
+        Log.d(LOG_TAG, "Starting service: " + intent);
+        context.startService(intent);
+        Log.d("SystemUIMonitorService", "InterfacerActivity startng SystemUIMonitorService as  UID" + this.getUserId());
+        Log.i(LOG_TAG, " caller's uid " + getCallingUid());
+    }
+    */
 
     private void unbindService() {
         unbindService(serviceConnection);
@@ -112,4 +152,34 @@ public class InterfacerActivity extends Activity {
             Log.d(LOG_TAG, "Service is null.");
     }
 
+    /* Enabling this here causes Subs to freeze on installing overlays
+    private void disableOverlays() {
+        try {
+            IOverlayManager iom = IOverlayManager.Stub.asInterface(
+                    ServiceManager.getService("overlay"));
+            if (iom == null) {
+                return;
+            }
+            Log.d(LOG_TAG,
+                    "Now contacting the Overlay Manager Service for the list of enabled overlays...");
+            Map<String, List<OverlayInfo>> allOverlays = iom.getAllOverlays(UserHandle.USER_SYSTEM);
+            if (allOverlays != null) {
+                Log.d(LOG_TAG,
+                        "The Overlay Manager Service reported back with the list of enabled overlays.");
+                Set<String> set = allOverlays.keySet();
+                for (String targetPackageName : set) {
+                    for (OverlayInfo oi : allOverlays.get(targetPackageName)) {
+                        if (oi.isEnabled()) {
+                            iom.setEnabled(oi.packageName, false, UserHandle.USER_SYSTEM, false);
+                            Log.d(LOG_TAG, "Now disabling \'" + oi.packageName + "\'");
+                        }
+                    }
+                }
+            }
+        } catch (RemoteException re) {
+            re.printStackTrace();
+            Log.d(LOG_TAG, "RemoteException while trying to contact the Overlay Manager Service!");
+        }
+    }
+    */
 }
