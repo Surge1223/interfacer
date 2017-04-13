@@ -1,21 +1,19 @@
 /*
- * Copyright (c) 2017 Project Substratum
+ * Copyright (c) 2016-2017 Projekt Substratum
+ * This file is part of Substratum.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * Substratum is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * Substratum is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- * Also add information on how to contact you by electronic and paper mail.
- *
+ * along with Substratum.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package projekt.interfacer.services;
@@ -171,7 +169,6 @@ public class JobService extends Service {
         mWorker.start();
         mJobHandler = new JobHandler(mWorker.getLooper());
         mMainHandler = new MainHandler(Looper.getMainLooper());
-        
         // Needed here before any checks
         IOUtils.createThemeDirIfNotExists();
     }
@@ -223,7 +220,8 @@ public class JobService extends Service {
         } else if (TextUtils.equals(command, COMMAND_VALUE_RESTART_UI)) {
             jobs_to_add.add(new UiResetJob());
         } else if (TextUtils.equals(command, COMMAND_VALUE_RESTART_SERVICE)) {
-            jobs_to_add.add(new RestartServiceJob());
+            log("Restarting JobService...");
+            restartService();
         } else if (TextUtils.equals(command, COMMAND_VALUE_CONFIGURATION_SHIM)) {
             jobs_to_add.add(new LocaleChanger(getApplicationContext(), mMainHandler));
         } else if (TextUtils.equals(command, COMMAND_VALUE_BOOTANIMATION)) {
@@ -322,7 +320,11 @@ public class JobService extends Service {
     @Override
     public void onDestroy() {
        if (mShouldRestartService) {
-           startService(new Intent(this, JobService.class));
+           Intent intent = new Intent(this, JobService.class);
+           PendingIntent pending = PendingIntent.getActivity(this, 0, new Intent(), 0);
+           intent.putExtra(INTERFACER_TOKEN, pending);
+           intent.putExtra(JOB_TIME_KEY, System.currentTimeMillis());
+           startService(intent);
        }
     }
 
@@ -462,10 +464,10 @@ public class JobService extends Service {
         // Let system know it's time for a font change
         SystemProperties.set("sys.refresh_theme", "1");
         Typeface.recreateDefaults();
-        float fontSize = Float.valueOf(Settings.System.getString(
-                getContentResolver(), Settings.System.FONT_SCALE));
-        Settings.System.putString(getContentResolver(),
-                Settings.System.FONT_SCALE, String.valueOf(fontSize + 0.0000001));
+        float fontSize = Settings.System.getFloatForUser(getContentResolver(),
+                                 Settings.System.FONT_SCALE, 1.0f, UserHandle.USER_CURRENT);
+        Settings.System.putFloatForUser(getContentResolver(),
+                Settings.System.FONT_SCALE, (fontSize + 0.0000001f), UserHandle.USER_CURRENT);
     }
 
     private void applyThemedSounds(String pid, String zipFileName) {
@@ -840,17 +842,6 @@ public class JobService extends Service {
             Message message = mJobHandler.obtainMessage(JobHandler.MESSAGE_DEQUEUE,
                     UiResetJob.this);
             mJobHandler.sendMessage(message);
-        }
-    }
-
-    private class RestartServiceJob implements Runnable {
-        @Override
-        public void run() {
-            log("Restarting JobService...");
-            Message message = mJobHandler.obtainMessage(JobHandler.MESSAGE_DEQUEUE,
-                    RestartServiceJob.this);
-            mJobHandler.sendMessage(message);
-            restartService();
         }
     }
 
