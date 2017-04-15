@@ -70,6 +70,7 @@ import projekt.substratum.IInterfacerInterface;
 public class JobService extends Service {
     private static final String TAG = JobService.class.getSimpleName();
     private static final boolean DEBUG = true;
+    private JobServiceImpl service;
     private static final String INTENT_STATUS_CHANGED = "projekt.interfacer.STATUS_CHANGED";
     private static final String PRIMARY_COMMAND_KEY = "primary_command_key";
     private static final String COMMAND_VALUE_JOB_COMPLETE = "job_complete";
@@ -430,6 +431,9 @@ public class JobService extends Service {
 
     @Override
     public void onCreate() {
+        super.onCreate();
+        this.service = new JobServiceImpl(); // <3>
+        Log.d(TAG, "Created"); // <5>
         // Needed here before any checks
         IOUtils.createThemeDirIfNotExists();
     }
@@ -441,11 +445,14 @@ public class JobService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
+            Log.d(TAG, "Binded"); // <5>
+            return this.service;
+        }
 
     @Override
     public void onDestroy() {
+        service = null;
+        super.onDestroy();
     }
 
     private void informCompletion(String extra) {
