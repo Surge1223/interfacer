@@ -46,6 +46,7 @@ import android.os.Environment;
 import android.os.FileUtils;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
@@ -123,6 +124,7 @@ public class JobService extends Service {
             new Sound(IOUtils.SYSTEM_THEME_RINGTONE_PATH, "/SoundsCache/ringtones/", "ringtone",
                     "ringtone", RingtoneManager.TYPE_RINGTONE)
     );
+
     private static IOverlayManager mOMS;
     private static IPackageManager mPM;
     private final IInterfacerInterface.Stub mBinder = new IInterfacerInterface.Stub() {
@@ -395,14 +397,18 @@ public class JobService extends Service {
         }
     };
 
-    private static IOverlayManager getOMS() {
-        if (mOMS == null) {
-            mOMS = IOverlayManager.Stub.asInterface(
-                    ServiceManager.getService("overlay"));
-        }
-
-        return mOMS;
+    public JobService() {
     }
+
+
+        private static IOverlayManager getOMS () {
+            if (mOMS == null) {
+                mOMS = IOverlayManager.Stub.asInterface(
+                        ServiceManager.getService("overlay"));
+            }
+
+            return mOMS;
+        }
 
     private static IPackageManager getPM() {
         if (mPM == null) {
@@ -445,13 +451,12 @@ public class JobService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-            Log.d(TAG, "Binded"); // <5>
-            return this.service;
-        }
+        Log.d(TAG, "Binded"); // <5>
+        return mBinder;
+    }
 
     @Override
     public void onDestroy() {
-        service = null;
         super.onDestroy();
     }
 

@@ -1,16 +1,19 @@
 package projekt.interfacer.services;
 
+import android.os.IBinder;
 import android.os.RemoteException;
 import java.util.List;
 import projekt.substratum.IInterfacerInterface;
 
-public class JobServiceImpl extends IInterfacerInterface.Stub {
+public class JobServiceImpl extends JobService implements IInterfacerInterface {
+
 
 
     @Override
     public void installPackage(List<String> paths) throws RemoteException {
 
     }
+
 
     @Override
     public void uninstallPackage(List<String> packages, boolean restartUi) throws RemoteException {
@@ -82,4 +85,9 @@ public class JobServiceImpl extends IInterfacerInterface.Stub {
 
     }
 
+
+    @Override
+    public IBinder asBinder() {
+        return null;
+    }
 }
