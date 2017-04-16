@@ -20,7 +20,6 @@ package projekt.interfacer.utils;
 
 import android.os.FileUtils;
 import android.util.Log;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -33,6 +32,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class IOUtils {
+
     public static final String SYSTEM_THEME_PATH = "/data/system/theme";
     public static final String SYSTEM_THEME_PATH_INHERIT = "/data/system/theme/config";
     public static final String SYSTEM_THEME_FONT_PATH = SYSTEM_THEME_PATH + File.separator
@@ -61,8 +61,7 @@ public class IOUtils {
         if (dirExists(dirPath)) {
             return;
         }
-        File file = new File(dirPath);
-        File dir = file.isDirectory() ? file : file.getParentFile();
+        File dir = new File(dirPath);
 
         if (!dir.isDirectory()) {
             dir.mkdirs();

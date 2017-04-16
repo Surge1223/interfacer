@@ -42,5 +42,10 @@
                 <action android:name="projekt.interfacer.INITIALIZE" />
             </intent-filter>
         </service>
+        <service
+            android:name="projekt.interfacer.services.JobServiceImpl"
+            android:exported="true"
+            android:permission="android.permission.MODIFY_OVERLAYS">
+        </service>
     </application>
 </manifest>

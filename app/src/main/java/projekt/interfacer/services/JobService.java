@@ -438,8 +438,8 @@ public class JobService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        this.service = new JobServiceImpl(); // <3>
-        Log.d(TAG, "Created"); // <5>
+        this.service = new JobServiceImpl();
+        Log.d(TAG, "Created");
         // Needed here before any checks
         IOUtils.createThemeDirIfNotExists();
     }
@@ -451,13 +451,15 @@ public class JobService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "Binded"); // <5>
+        Log.d(TAG, "Binded");
         return mBinder;
     }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: this=" + mBinder);
     }
 
     private void informCompletion(String extra) {
