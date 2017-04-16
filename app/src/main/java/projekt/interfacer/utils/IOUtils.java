@@ -61,13 +61,17 @@ public class IOUtils {
         if (dirExists(dirPath)) {
             return;
         }
+        File file = new File(dirPath);
+        File dir = file.isDirectory() ? file : file.getParentFile();
 
-        File dir = new File(dirPath);
-        if (dir.mkdirs()) {
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+        } else {
+            dir.mkdir();
+        }
             setPermissions(dir, FileUtils.S_IRWXU | FileUtils.S_IRWXG |
                     FileUtils.S_IROTH | FileUtils.S_IXOTH);
         }
-    }
 
     public static void createThemeDirIfNotExists() {
         createDirIfNotExists(SYSTEM_THEME_PATH_INHERIT);
