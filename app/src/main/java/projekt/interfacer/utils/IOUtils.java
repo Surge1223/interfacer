@@ -34,6 +34,7 @@ import java.util.zip.ZipInputStream;
 
 public class IOUtils {
     public static final String SYSTEM_THEME_PATH = "/data/system/theme";
+    public static final String SYSTEM_THEME_PATH_INHERIT = "/data/system/theme/config";
     public static final String SYSTEM_THEME_FONT_PATH = SYSTEM_THEME_PATH + File.separator
             + "fonts";
     public static final String SYSTEM_THEME_AUDIO_PATH = SYSTEM_THEME_PATH + File.separator
@@ -69,7 +70,7 @@ public class IOUtils {
     }
 
     public static void createThemeDirIfNotExists() {
-        createDirIfNotExists(SYSTEM_THEME_PATH);
+        createDirIfNotExists(SYSTEM_THEME_PATH_INHERIT);
     }
 
     public static void createFontDirIfNotExists() {
