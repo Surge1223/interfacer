@@ -63,7 +63,7 @@ public class IOUtils {
         }
 
         File dir = new File(dirPath);
-        if (dir.mkdir()) {
+        if (dir.mkdirs()) {
             setPermissions(dir, FileUtils.S_IRWXU | FileUtils.S_IRWXG |
                     FileUtils.S_IROTH | FileUtils.S_IXOTH);
         }
