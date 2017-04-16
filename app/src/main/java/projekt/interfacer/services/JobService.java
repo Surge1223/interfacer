@@ -452,14 +452,17 @@ public class JobService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Binded");
+       // this.service.onBind(intent);
         return mBinder;
     }
 
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: this=" + mBinder);
+        Intent i = new Intent(this, JobService.class);
+        stopServiceAsUser(i, UserHandle.SYSTEM);
+        Log.d(TAG, "onDestroy: this=" + i);
+        return;
     }
 
     private void informCompletion(String extra) {
